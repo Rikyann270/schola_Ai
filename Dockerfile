@@ -12,7 +12,9 @@ RUN apk add --update --virtual build-dependencies python3 build-base && \
 WORKDIR /data
 
 # Create n8n data directory and set permissions
-RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
+RUN mkdir -p /home/node/.n8n && \
+    chown -R node:node /home/node/.n8n && \
+    chmod -R 755 /home/node/.n8n
 
 # Run as non-root user
 USER node
