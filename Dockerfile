@@ -9,14 +9,18 @@ RUN apk add --no-cache graphicsmagick tzdata \
 # Set working directory
 WORKDIR /data
 
-# Create .n8n directory and give permissions AFTER switching to node user
+# Create .n8n directory and set correct ownership/permissions
+RUN mkdir -p /home/node/.n8n \
+ && chown -R node:node /home/node/.n8n \
+ && chmod -R 755 /home/node/.n8n
+
+# Switch to node user
 USER node
-RUN mkdir -p /home/node/.n8n
 
 # Environment
 ENV N8N_USER_ID=node
 
-# Expose the correct port (Railway will inject PORT env var)
+# Expose the correct port
 EXPOSE 5678
 
 # Start n8n
