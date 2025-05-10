@@ -11,9 +11,16 @@ RUN apk add --update --virtual build-dependencies python3 build-base && \
 # Set working directory
 WORKDIR /data
 
-# Run as root
+# Run as root (keeping your existing setup)
 USER root
 ENV N8N_USER_ID=root
+
+# Environment variables for n8n production URLs
+ENV NODE_ENV=production
+ENV N8N_PORT=$PORT
+ENV N8N_HOST=0.0.0.0
+ENV N8N_PROTOCOL=https
+ENV WEBHOOK_URL=https://schola-aiworkflow.up.railway.app/
 
 # Expose port
 EXPOSE $PORT
