@@ -1,19 +1,23 @@
+FROM node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e
+
+# Install dependencies
+RUN apk add --no-cache graphicsmagick tzdata \
+ && apk add --no-cache --virtual .build-deps python3 build-base \
+ && npm_config_user=root npm install --location=global n8n \
+ && apk del .build-deps
+
 # Set working directory
 WORKDIR /data
 
-# Switch to node user early
+# Create .n8n directory and give permissions AFTER switching to node user
 USER node
-
-# Create and initialize n8n data directory with proper permissions
-RUN mkdir -p /home/node/.n8n && \
-    touch /home/node/.n8n/config && \
-    touch /home/node/.n8n/n8n.sqlite
+RUN mkdir -p /home/node/.n8n
 
 # Environment
 ENV N8N_USER_ID=node
 
-# Expose port
-EXPOSE $PORT
+# Expose the correct port (Railway will inject PORT env var)
+EXPOSE 5678
 
 # Start n8n
 CMD ["n8n", "start"]
