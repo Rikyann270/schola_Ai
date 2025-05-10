@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  n8n:
+    build: .
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-securepassword}
+      - DB_TYPE=sqlite
+      - N8N_HOST=${N8N_HOST:-n8n-production-837d.up.railway.app}
+      - WEBHOOK_URL=https://${N8N_HOST}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-randomsecurekey}
+      - NODE_FUNCTION_ALLOW_EXTERNAL=axios,lodash # Adjust based on your needs
+      - PORT=${PORT:-5678}
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336 # Prune executions older than 14 days
+    ports:
+      - "${PORT:-5678}:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
