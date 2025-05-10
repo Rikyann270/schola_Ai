@@ -11,8 +11,12 @@ RUN apk add --update --virtual build-dependencies python3 build-base && \
 # Set working directory
 WORKDIR /data
 
-# Create n8n data directory
-RUN mkdir -p /home/node/.n8n
+# Create and initialize n8n data directory
+RUN mkdir -p /home/node/.n8n && \
+    touch /home/node/.n8n/config && \
+    touch /home/node/.n8n/n8n.sqlite && \
+    chown -R node:node /home/node/.n8n && \
+    chmod -R 755 /home/node/.n8n
 
 # Run as non-root user
 USER node
@@ -21,5 +25,5 @@ ENV N8N_USER_ID=node
 # Expose port
 EXPOSE $PORT
 
-# Fix permissions and start n8n
-CMD ["/bin/sh", "-c", "chmod -R 755 /home/node/.n8n && chown -R node:node /home/node/.n8n && n8n start"]
+# Start n8n
+CMD ["n8n", "start"]
