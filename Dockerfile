@@ -22,10 +22,10 @@ WORKDIR /home/ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh && \
     [ -x /usr/local/bin/ollama ] || { echo "Ollama binary not installed"; exit 1; }
 
-# Pull llama3.2 model during build (lighter model, ~3.2B parameters)
+# Pull tinyllama model during build (faster, ~1.1B parameters)
 RUN ollama serve & \
     sleep 10 && \
-    ollama pull llama3.2 || { echo "Failed to pull llama3.2 model"; exit 1; } && \
+    ollama pull tinyllama || { echo "Failed to pull tinyllama model"; exit 1; } && \
     pkill ollama
 
 # Set OLLAMA_HOST for Railway compatibility (binds to 0.0.0.0:11434)
