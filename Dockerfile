@@ -28,8 +28,8 @@ RUN ollama serve & \
     ollama pull llama3 || { echo "Failed to pull llama3 model"; exit 1; } && \
     pkill ollama
 
-# Set environment variable for Railway port (defaults to 11434 if not set)
-ENV PORT=11434
+# Set OLLAMA_HOST for Railway compatibility (binds to 0.0.0.0:11434)
+ENV OLLAMA_HOST=0.0.0.0:11434
 
-# Run Ollama server, binding to 0.0.0.0 for Railway
-CMD ["/bin/sh", "-c", "ollama serve --host 0.0.0.0 --port ${PORT}"]
+# Run Ollama server
+CMD ["ollama", "serve"]
