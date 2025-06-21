@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user for safety
-RUN useradd -m -s /bin/bash ollama && echo "ollama ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd -m -s /bin/bash ollama && echo "ollama ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ollama
 
 # Switch to ollama user
 USER ollama
@@ -26,10 +26,10 @@ RUN curl -fsSL https://ollama.com/download/Ollama-linux.zip -o ollama.zip && \
     sudo mv ollama /usr/local/bin/ollama && \
     rm ollama.zip
 
-# Start the Ollama server in background and pull model
+# Start the Ollama server in background, pull model, and handle errors
 RUN ollama serve & \
     sleep 10 && \
-    ollama pull llama3 && \
+    ollama pull llama3 || { echo "Failed to pull llama3 model"; exit 1; } && \
     pkill ollama
 
 # Expose default Ollama port
