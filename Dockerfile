@@ -25,7 +25,7 @@ RUN curl -fsSL https://ollama.com/install.sh | sh && \
 # Pull llama3 model during build
 RUN ollama serve & \
     sleep 10 && \
-    ollama pull llama3 || { echo "Failed to pull llama3 model"; exit 1; } && \
+    ollama pull llama3.2B || { echo "Failed to pull llama3 model"; exit 1; } && \
     pkill ollama
 
 # Set OLLAMA_HOST for Railway compatibility (binds to 0.0.0.0:11434)
