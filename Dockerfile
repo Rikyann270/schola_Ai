@@ -1,19 +1,18 @@
-# Use Ubuntu 22.04 as base
+# Use Ubuntu 22.04 as a lightweight base
 FROM ubuntu:22.04
 
 # Disable interactive frontend
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies
+# Install minimal dependencies
 RUN apt-get update && apt-get install -y \
     curl \
-    unzip \
+    tar \
     sudo \
     ca-certificates \
-    gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user for safety
+# Create a non-root user
 RUN useradd -m -s /bin/bash ollama && echo "ollama ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ollama
 
 # Switch to ollama user
@@ -23,17 +22,18 @@ WORKDIR /home/ollama
 # Install Ollama CLI
 RUN curl -fsSL https://ollama.com/download/ollama-linux-amd64.tgz -o ollama-linux-amd64.tgz && \
     tar -xzf ollama-linux-amd64.tgz -C /tmp && \
+    [ -f /tmp/ollama ] || { echo "Ollama binary not found"; exit 1; } && \
     sudo mv /tmp/ollama /usr/local/bin/ollama && \
     rm ollama-linux-amd64.tgz
 
-# Start the Ollama server in background, pull model, and handle errors
+# Pull llama3 model during build
 RUN ollama serve & \
     sleep 10 && \
     ollama pull llama3 || { echo "Failed to pull llama3 model"; exit 1; } && \
     pkill ollama
 
-# Expose default Ollama port
-EXPOSE 11434
+# Set environment variable for Railway port (defaults to 11434 if not set)
+ENV PORT=11434
 
-# Run Ollama server on container start
-CMD ["ollama", "serve"]
+# Run Ollama server, binding to 0.0.0.0 for Railway
+CMD ["/bin/sh", "-c", "ollama serve --host 0.0.0.0 --port ${PORT}"]
