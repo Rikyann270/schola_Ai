@@ -7,7 +7,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install minimal dependencies
 RUN apt-get update && apt-get install -y \
     curl \
-    tar \
     sudo \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -19,13 +18,9 @@ RUN useradd -m -s /bin/bash ollama && echo "ollama ALL=(ALL) NOPASSWD:ALL" >> /e
 USER ollama
 WORKDIR /home/ollama
 
-# Install Ollama CLI
-RUN curl -fsSL https://ollama.com/download/ollama-linux-amd64.tgz -o ollama-linux-amd64.tgz && \
-    tar -xzf ollama-linux-amd64.tgz && \
-    [ -f ollama ] || { echo "Ollama binary not found"; exit 1; } && \
-    sudo mv ollama /usr/local/bin/ollama && \
-    chmod +x /usr/local/bin/ollama && \
-    rm ollama-linux-amd64.tgz
+# Install Ollama CLI using the official install script
+RUN curl -fsSL https://ollama.com/install.sh | sh && \
+    [ -x /usr/local/bin/ollama ] || { echo "Ollama binary not installed"; exit 1; }
 
 # Pull llama3 model during build
 RUN ollama serve & \
