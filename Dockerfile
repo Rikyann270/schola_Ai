@@ -21,10 +21,10 @@ USER ollama
 WORKDIR /home/ollama
 
 # Install Ollama CLI
-RUN curl -fsSL https://ollama.com/download/Ollama-linux.zip -o ollama.zip && \
-    unzip ollama.zip && \
-    sudo mv ollama /usr/local/bin/ollama && \
-    rm ollama.zip
+RUN curl -fsSL https://ollama.com/download/ollama-linux-amd64.tgz -o ollama-linux-amd64.tgz && \
+    tar -xzf ollama-linux-amd64.tgz -C /tmp && \
+    sudo mv /tmp/ollama /usr/local/bin/ollama && \
+    rm ollama-linux-amd64.tgz
 
 # Start the Ollama server in background, pull model, and handle errors
 RUN ollama serve & \
