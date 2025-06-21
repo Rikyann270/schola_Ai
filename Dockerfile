@@ -1,29 +1,39 @@
-FROM node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e
+# Use Ubuntu 22.04 as base
+FROM ubuntu:22.04
 
-# Install dependencies
-RUN apk add --update --no-cache graphicsmagick tzdata
+# Disable interactive frontend
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build dependencies, install n8n, and clean up
-RUN apk add --update --virtual build-dependencies python3 build-base && \
-    npm_config_user=root npm install --location=global n8n && \
-    apk del build-dependencies
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    sudo \
+    ca-certificates \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /data
+# Create a non-root user for safety
+RUN useradd -m -s /bin/bash ollama && echo "ollama ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Run as root (keeping your existing setup)
-USER root
-ENV N8N_USER_ID=root
+# Switch to ollama user
+USER ollama
+WORKDIR /home/ollama
 
-# Environment variables for n8n production URLs
-ENV NODE_ENV=production
-ENV N8N_PORT=$PORT
-ENV N8N_HOST=0.0.0.0
-ENV N8N_PROTOCOL=https
-ENV WEBHOOK_URL=https://schola-aiworkflow.up.railway.app/
+# Install Ollama CLI
+RUN curl -fsSL https://ollama.com/download/Ollama-linux.zip -o ollama.zip && \
+    unzip ollama.zip && \
+    sudo mv ollama /usr/local/bin/ollama && \
+    rm ollama.zip
 
-# Expose port
-EXPOSE $PORT
+# Start the Ollama server in background and pull model
+RUN ollama serve & \
+    sleep 10 && \
+    ollama pull llama3 && \
+    pkill ollama
 
-# Start n8n
-CMD ["n8n", "start"]
+# Expose default Ollama port
+EXPOSE 11434
+
+# Run Ollama server on container start
+CMD ["ollama", "serve"]
