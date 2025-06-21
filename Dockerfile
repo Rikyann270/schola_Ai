@@ -21,9 +21,10 @@ WORKDIR /home/ollama
 
 # Install Ollama CLI
 RUN curl -fsSL https://ollama.com/download/ollama-linux-amd64.tgz -o ollama-linux-amd64.tgz && \
-    tar -xzf ollama-linux-amd64.tgz -C /tmp && \
-    [ -f /tmp/ollama ] || { echo "Ollama binary not found"; exit 1; } && \
-    sudo mv /tmp/ollama /usr/local/bin/ollama && \
+    tar -xzf ollama-linux-amd64.tgz && \
+    [ -f ollama ] || { echo "Ollama binary not found"; exit 1; } && \
+    sudo mv ollama /usr/local/bin/ollama && \
+    chmod +x /usr/local/bin/ollama && \
     rm ollama-linux-amd64.tgz
 
 # Pull llama3 model during build
